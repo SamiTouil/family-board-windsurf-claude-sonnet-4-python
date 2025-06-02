@@ -1,0 +1,23 @@
+{
+  "app": {
+    "title": "Planificateur de Tâches Familiales",
+    "welcome": "Bienvenue dans votre planificateur de tâches familiales ! C'est ici que vous gérerez toutes les tâches et activités de votre famille."
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Une erreur s'est produite",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "add": "Ajouter",
+    "close": "Fermer"
+  },
+  "user": {
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "email": "Email",
+    "password": "Mot de passe",
+    "avatar": "Avatar"
+  }
+}

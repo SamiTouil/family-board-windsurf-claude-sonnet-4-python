@@ -1,0 +1,23 @@
+{
+  "app": {
+    "title": "Family Task Planner",
+    "welcome": "Welcome to your family task planner! This is where you'll manage all your family's tasks and activities."
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "close": "Close"
+  },
+  "user": {
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "password": "Password",
+    "avatar": "Avatar"
+  }
+}
