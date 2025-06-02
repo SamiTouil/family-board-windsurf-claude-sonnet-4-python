@@ -8,7 +8,9 @@ vi.mock('react-i18next', () => ({
     t: (key: string) => {
       const translations: Record<string, string> = {
         'app.title': 'Family Task Planner',
-        'app.welcome': 'Welcome to your family task planner! This is where you\'ll manage all your family\'s tasks and activities.'
+        'app.welcome': 'Welcome to your family task planner! This is where you\'ll manage all your family\'s tasks and activities.',
+        'common.loading': 'Loading...',
+        'auth.logout': 'Sign Out'
       }
       return translations[key] || key
     },
@@ -16,6 +18,22 @@ vi.mock('react-i18next', () => ({
       language: 'en',
       changeLanguage: vi.fn()
     }
+  })
+}))
+
+// Mock AuthContext to simulate authenticated user
+vi.mock('./contexts/AuthContext', () => ({
+  AuthProvider: ({ children }: { children: React.ReactNode }) => children,
+  useAuth: () => ({
+    user: {
+      id: 1,
+      first_name: 'John',
+      last_name: 'Doe',
+      email: 'john@example.com'
+    },
+    isAuthenticated: true,
+    isLoading: false,
+    logout: vi.fn()
   })
 }))
 
