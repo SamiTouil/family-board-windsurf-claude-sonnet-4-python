@@ -24,7 +24,7 @@ def read_users(
 def create_user(
     user_in: UserCreate,
     db: Session = Depends(get_db)
-) -> User:
+) -> UserModel:
     """Create new user."""
     # Check if user already exists
     db_user = user_crud.get_by_email(db, email=user_in.email)
@@ -41,7 +41,7 @@ def create_user(
 def read_user(
     user_id: int,
     db: Session = Depends(get_db)
-) -> User:
+) -> UserModel:
     """Get user by ID."""
     user = user_crud.get(db, id=user_id)
     if not user:
@@ -54,7 +54,7 @@ def update_user(
     user_id: int,
     user_in: UserUpdate,
     db: Session = Depends(get_db)
-) -> User:
+) -> UserModel:
     """Update user."""
     user = user_crud.get(db, id=user_id)
     if not user:
