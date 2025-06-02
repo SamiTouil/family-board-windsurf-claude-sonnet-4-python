@@ -34,5 +34,14 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         """Verify password."""
         return pwd_context.verify(plain_password, hashed_password)
 
+    def authenticate(self, db: Session, *, email: str, password: str) -> Optional[User]:
+        """Authenticate user by email and password."""
+        user = self.get_by_email(db, email=email)
+        if not user:
+            return None
+        if not self.verify_password(password, user.hashed_password):
+            return None
+        return user
+
 
 user_crud = CRUDUser(User)

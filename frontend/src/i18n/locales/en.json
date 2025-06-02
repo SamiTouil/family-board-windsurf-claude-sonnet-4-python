@@ -19,5 +19,27 @@
     "email": "Email",
     "password": "Password",
     "avatar": "Avatar"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "confirmPassword": "Confirm Password",
+    "login": {
+      "title": "Sign In",
+      "button": "Sign In",
+      "loading": "Signing in...",
+      "noAccount": "Don't have an account?"
+    },
+    "signup": {
+      "title": "Sign Up",
+      "button": "Create Account",
+      "loading": "Creating account...",
+      "hasAccount": "Already have an account?",
+      "passwordMismatch": "Passwords do not match",
+      "passwordTooShort": "Password must be at least 6 characters"
+    },
+    "logout": "Sign Out"
   }
 }

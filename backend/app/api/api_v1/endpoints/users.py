@@ -1,12 +1,37 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from typing import List
 from app.db.database import get_db
 from app.schemas.user import User, UserCreate, UserUpdate
 from app.models.user import User as UserModel
 from app.crud.user import user_crud
+from app.core.security import verify_token
 
+security = HTTPBearer()
 router = APIRouter()
+
+
+def get_current_user(
+    db: Session = Depends(get_db),
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+) -> UserModel:
+    """Get current authenticated user."""
+    token = credentials.credentials
+    email = verify_token(token)
+    if email is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    user = user_crud.get_by_email(db, email=email)
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    return user
 
 
 @router.get("/", response_model=List[User])
@@ -35,6 +60,14 @@ def create_user(
         )
     user = user_crud.create(db, obj_in=user_in)
     return user
+
+
+@router.get("/me", response_model=User)
+def read_user_me(
+    current_user: UserModel = Depends(get_current_user)
+) -> UserModel:
+    """Get current user info."""
+    return current_user
 
 
 @router.get("/{user_id}", response_model=User)
