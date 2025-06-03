@@ -8,9 +8,9 @@
     "build": "tsc && vite build",
     "lint": "echo 'TypeScript files are checked by tsc, no JavaScript files to lint'",
     "preview": "vite preview",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage"
+    "test": "vitest --run",
+    "test:ui": "vitest --ui --run",
+    "test:coverage": "vitest --coverage --run"
   },
   "dependencies": {
     "react": "^18.2.0",
