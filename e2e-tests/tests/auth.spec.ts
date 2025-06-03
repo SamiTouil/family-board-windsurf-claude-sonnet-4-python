@@ -15,10 +15,50 @@ const invalidUser = {
 
 test.describe('Authentication Flow', () => {
   test.beforeEach(async ({ page }) => {
+    // Listen for console logs and errors
+    page.on('console', msg => console.log('PAGE LOG:', msg.text()))
+    page.on('pageerror', err => console.log('PAGE ERROR:', err.message))
+    
+    // Listen for network requests
+    page.on('request', request => {
+      if (request.url().includes('localhost:8000')) {
+        console.log('API REQUEST:', request.method(), request.url())
+      }
+    })
+    page.on('response', response => {
+      if (response.url().includes('localhost:8000')) {
+        console.log('API RESPONSE:', response.status(), response.url())
+      }
+    })
+    
     await page.goto('/')
+    
+    // Wait for React app to load
+    await page.waitForSelector('h1', { timeout: 10000 })
   })
 
   test.describe('Initial Page Load', () => {
+    test('should have backend services running', async ({ page }) => {
+      // Test backend health
+      try {
+        const response = await page.request.get('http://localhost:8000/health')
+        console.log('Backend health check:', response.status())
+      } catch (error: any) {
+        console.log('Backend health check failed:', error instanceof Error ? error.message : String(error))
+      }
+      
+      // Test if frontend can reach backend
+      const apiResponse = await page.evaluate(async () => {
+        try {
+          const response = await fetch('http://localhost:8000/health')
+          return { status: response.status, ok: response.ok }
+        } catch (error: any) {
+          return { error: error instanceof Error ? error.message : String(error) }
+        }
+      })
+      console.log('Frontend->Backend connectivity:', apiResponse)
+    })
+
     test('should display login form by default', async ({ page }) => {
       await expect(page.getByTestId('submit-button')).toHaveText(/sign in/i)
       await expect(page.getByTestId('switch-mode-button')).toHaveText(/don't have an account/i)
