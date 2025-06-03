@@ -134,6 +134,84 @@ def test_create_user_duplicate_email(client: TestClient) -> None:
 
 def test_get_nonexistent_user(client: TestClient) -> None:
     """Test getting a non-existent user."""
-    response = client.get("/api/v1/users/999")
+    response = client.get("/api/v1/users/999999")
     assert response.status_code == 404
     assert response.json()["detail"] == "User not found"
+
+
+def test_update_user_password(client: TestClient, db: Session) -> None:
+    """Test updating a user's password via API."""
+    # Create a test user via API
+    user_data = {
+        "first_name": "Password",
+        "last_name": "Test",
+        "email": "password.test@example.com",
+        "password": "oldpassword123"
+    }
+    
+    response = client.post("/api/v1/users/", json=user_data)
+    assert response.status_code == 201
+    created_user = response.json()
+    user_id = created_user["id"]
+    
+    # Update the user's password
+    update_data = {
+        "password": "newpassword456"
+    }
+    
+    response = client.put(f"/api/v1/users/{user_id}", json=update_data)
+    assert response.status_code == 200
+    
+    # Verify the password was updated by checking authentication
+    # Get the updated user via API
+    response = client.get(f"/api/v1/users/{user_id}")
+    assert response.status_code == 200
+    
+    # Test authentication with old password (should fail)
+    from app.crud.user import user_crud
+    updated_user = user_crud.get(db, id=user_id)
+    assert updated_user is not None
+    
+    # Old password should not work
+    assert not user_crud.verify_password("oldpassword123", updated_user.hashed_password)
+    
+    # New password should work
+    assert user_crud.verify_password("newpassword456", updated_user.hashed_password)
+
+
+def test_update_user_with_password_and_other_fields(client: TestClient, db: Session) -> None:
+    """Test updating a user's password along with other fields."""
+    # Create a test user via API
+    user_data = {
+        "first_name": "Mixed",
+        "last_name": "Update",
+        "email": "mixed.update@example.com",
+        "password": "originalpass"
+    }
+    
+    response = client.post("/api/v1/users/", json=user_data)
+    assert response.status_code == 201
+    created_user = response.json()
+    user_id = created_user["id"]
+    
+    # Update multiple fields including password
+    update_data = {
+        "first_name": "UpdatedMixed",
+        "password": "updatedpass123",
+        "avatar_url": "https://example.com/new-avatar.jpg"
+    }
+    
+    response = client.put(f"/api/v1/users/{user_id}", json=update_data)
+    assert response.status_code == 200
+    
+    data = response.json()
+    assert data["first_name"] == "UpdatedMixed"
+    assert data["last_name"] == "Update"  # Unchanged
+    assert data["avatar_url"] == "https://example.com/new-avatar.jpg"
+    
+    # Verify password was updated
+    from app.crud.user import user_crud
+    updated_user = user_crud.get(db, id=user_id)
+    assert updated_user is not None
+    assert user_crud.verify_password("updatedpass123", updated_user.hashed_password)
+    assert not user_crud.verify_password("originalpass", updated_user.hashed_password)
