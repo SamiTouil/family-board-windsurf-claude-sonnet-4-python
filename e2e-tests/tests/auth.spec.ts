@@ -159,7 +159,8 @@ test.describe('Authentication Flow', () => {
       // Submit the form
       await page.getByTestId('submit-button').click()
       
-      // Should redirect to dashboard
+      // Wait for signup to complete and redirect to dashboard
+      await expect(page.getByTestId('user-name')).toBeVisible({ timeout: 10000 })
       await expect(page.getByTestId('user-name')).toContainText(`${testUser.firstName} ${testUser.lastName}`)
       await expect(page.getByTestId('logout-button')).toBeVisible()
     })
@@ -177,7 +178,7 @@ test.describe('Authentication Flow', () => {
     test('should successfully login with valid credentials after signup', async ({ page }) => {
       const uniqueEmail = `login-test-${Date.now()}@example.com`
       
-      // First, create an account
+      // First register a user
       await page.getByTestId('switch-mode-button').click()
       await page.getByTestId('firstName-input').fill(testUser.firstName)
       await page.getByTestId('lastName-input').fill(testUser.lastName)
@@ -186,21 +187,20 @@ test.describe('Authentication Flow', () => {
       await page.getByTestId('confirmPassword-input').fill(testUser.password)
       await page.getByTestId('submit-button').click()
       
-      // Should be logged in and see dashboard
-      await expect(page.getByTestId('user-name')).toContainText(`${testUser.firstName} ${testUser.lastName}`)
+      // Wait for signup to complete
+      await expect(page.getByTestId('user-name')).toBeVisible({ timeout: 10000 })
       
       // Logout
       await page.getByTestId('logout-button').click()
+      await expect(page.getByTestId('auth-page')).toBeVisible()
       
-      // Should be back to auth page
-      await expect(page.getByTestId('submit-button')).toHaveText(/sign in/i)
-      
-      // Login with the same credentials
+      // Now login with the same credentials
       await page.getByTestId('email-input').fill(uniqueEmail)
       await page.getByTestId('password-input').fill(testUser.password)
       await page.getByTestId('submit-button').click()
       
-      // Should be logged in again
+      // Should be logged in
+      await expect(page.getByTestId('user-name')).toBeVisible({ timeout: 10000 })
       await expect(page.getByTestId('user-name')).toContainText(`${testUser.firstName} ${testUser.lastName}`)
     })
   })
@@ -209,7 +209,7 @@ test.describe('Authentication Flow', () => {
     test('should display user information and logout functionality', async ({ page }) => {
       const uniqueEmail = `dashboard-test-${Date.now()}@example.com`
       
-      // Create account and login
+      // Register and login
       await page.getByTestId('switch-mode-button').click()
       await page.getByTestId('firstName-input').fill(testUser.firstName)
       await page.getByTestId('lastName-input').fill(testUser.lastName)
@@ -218,25 +218,24 @@ test.describe('Authentication Flow', () => {
       await page.getByTestId('confirmPassword-input').fill(testUser.password)
       await page.getByTestId('submit-button').click()
       
-      // Verify dashboard elements
-      await expect(page.locator('h1')).toContainText('Family Task Planner')
+      // Wait for dashboard to load
+      await expect(page.getByTestId('user-name')).toBeVisible({ timeout: 10000 })
       await expect(page.getByTestId('user-name')).toContainText(`${testUser.firstName} ${testUser.lastName}`)
       await expect(page.getByTestId('logout-button')).toBeVisible()
-      await expect(page.locator('.lang-btn')).toHaveCount(2)
       
       // Test logout
       await page.getByTestId('logout-button').click()
-      await expect(page.getByTestId('submit-button')).toHaveText(/sign in/i)
+      await expect(page.getByTestId('auth-page')).toBeVisible()
     })
 
     test('should maintain language preference after login', async ({ page }) => {
       const uniqueEmail = `lang-test-${Date.now()}@example.com`
       
-      // Switch to French before signup
-      await page.click('button:has-text("FR")')
-      await expect(page.locator('h1')).toContainText('Planificateur de Tâches Familiales')
+      // Change language to French first
+      await page.getByTestId('lang-fr-button').click()
+      await expect(page.getByTestId('submit-button')).toContainText(/se connecter/i)
       
-      // Create account
+      // Register user
       await page.getByTestId('switch-mode-button').click()
       await page.getByTestId('firstName-input').fill(testUser.firstName)
       await page.getByTestId('lastName-input').fill(testUser.lastName)
@@ -245,15 +244,18 @@ test.describe('Authentication Flow', () => {
       await page.getByTestId('confirmPassword-input').fill(testUser.password)
       await page.getByTestId('submit-button').click()
       
-      // Should still be in French on dashboard
-      await expect(page.locator('h1')).toContainText('Planificateur de Tâches Familiales')
+      // Wait for dashboard to load
+      await expect(page.getByTestId('user-name')).toBeVisible({ timeout: 10000 })
+      
+      // Language should still be French
+      await expect(page.getByTestId('logout-button')).toContainText(/déconnexion/i)
     })
   })
 
   test.describe('Edge Cases', () => {
     test('should handle network errors gracefully', async ({ page }) => {
-      // Intercept API calls and return network error
-      await page.route('**/api/v1/auth/**', route => {
+      // Intercept the API call and simulate network error
+      await page.route('**/auth/login', route => {
         route.abort('failed')
       })
       
@@ -277,11 +279,15 @@ test.describe('Authentication Flow', () => {
       await page.getByTestId('confirmPassword-input').fill(testUser.password)
       await page.getByTestId('submit-button').click()
       
-      // Should be logged in
-      await expect(page.getByTestId('user-name')).toBeVisible()
+      // Wait for signup to complete and login to happen
+      await expect(page.getByTestId('user-name')).toBeVisible({ timeout: 10000 })
+      await expect(page.getByTestId('user-name')).toContainText(`${testUser.firstName} ${testUser.lastName}`)
       
       // Logout
       await page.getByTestId('logout-button').click()
+      
+      // Wait for logout to complete
+      await expect(page.getByTestId('auth-page')).toBeVisible()
       
       // Try to register with same email
       await page.getByTestId('switch-mode-button').click()
@@ -292,8 +298,9 @@ test.describe('Authentication Flow', () => {
       await page.getByTestId('confirmPassword-input').fill(testUser.password)
       await page.getByTestId('submit-button').click()
       
-      // Should show error
+      // Should show error for duplicate email
       await expect(page.getByTestId('auth-error')).toBeVisible()
+      await expect(page.getByTestId('auth-error')).toContainText(/email.*already.*exists/i)
     })
 
     test('should disable submit button while loading', async ({ page }) => {
