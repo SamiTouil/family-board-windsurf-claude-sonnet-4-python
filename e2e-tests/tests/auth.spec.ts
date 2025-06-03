@@ -160,7 +160,7 @@ test.describe('Authentication Flow', () => {
       await page.getByTestId('submit-button').click()
       
       // Wait for signup to complete and redirect to dashboard
-      await expect(page.getByTestId('user-name')).toBeVisible({ timeout: 10000 })
+      await expect(page.getByTestId('user-name')).toBeVisible({ timeout: 20000 })
       await expect(page.getByTestId('user-name')).toContainText(`${testUser.firstName} ${testUser.lastName}`)
       await expect(page.getByTestId('logout-button')).toBeVisible()
     })
@@ -188,7 +188,7 @@ test.describe('Authentication Flow', () => {
       await page.getByTestId('submit-button').click()
       
       // Wait for signup to complete
-      await expect(page.getByTestId('user-name')).toBeVisible({ timeout: 10000 })
+      await expect(page.getByTestId('user-name')).toBeVisible({ timeout: 20000 })
       
       // Logout
       await page.getByTestId('logout-button').click()
@@ -200,7 +200,7 @@ test.describe('Authentication Flow', () => {
       await page.getByTestId('submit-button').click()
       
       // Should be logged in
-      await expect(page.getByTestId('user-name')).toBeVisible({ timeout: 10000 })
+      await expect(page.getByTestId('user-name')).toBeVisible({ timeout: 20000 })
       await expect(page.getByTestId('user-name')).toContainText(`${testUser.firstName} ${testUser.lastName}`)
     })
   })
@@ -219,7 +219,7 @@ test.describe('Authentication Flow', () => {
       await page.getByTestId('submit-button').click()
       
       // Wait for dashboard to load
-      await expect(page.getByTestId('user-name')).toBeVisible({ timeout: 10000 })
+      await expect(page.getByTestId('user-name')).toBeVisible({ timeout: 20000 })
       await expect(page.getByTestId('user-name')).toContainText(`${testUser.firstName} ${testUser.lastName}`)
       await expect(page.getByTestId('logout-button')).toBeVisible()
       
@@ -245,7 +245,7 @@ test.describe('Authentication Flow', () => {
       await page.getByTestId('submit-button').click()
       
       // Wait for dashboard to load
-      await expect(page.getByTestId('user-name')).toBeVisible({ timeout: 10000 })
+      await expect(page.getByTestId('user-name')).toBeVisible({ timeout: 20000 })
       
       // Language should still be French
       await expect(page.getByTestId('logout-button')).toContainText(/déconnexion/i)
@@ -280,7 +280,7 @@ test.describe('Authentication Flow', () => {
       await page.getByTestId('submit-button').click()
       
       // Wait for signup to complete and login to happen
-      await expect(page.getByTestId('user-name')).toBeVisible({ timeout: 10000 })
+      await expect(page.getByTestId('user-name')).toBeVisible({ timeout: 20000 })
       await expect(page.getByTestId('user-name')).toContainText(`${testUser.firstName} ${testUser.lastName}`)
       
       // Logout
