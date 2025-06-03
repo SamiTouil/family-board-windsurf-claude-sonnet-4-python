@@ -8,7 +8,7 @@
     "build": "tsc && vite build",
     "lint": "echo 'TypeScript files are checked by tsc, no JavaScript files to lint'",
     "preview": "vite preview",
-    "test": "vitest",
+    "test": "vitest --run",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage"
   },
