@@ -12,7 +12,13 @@ app = FastAPI(
 # Set up CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for debugging
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000", 
+        "http://0.0.0.0:3000",
+        "http://127.0.0.1:58915",  # Browser preview proxy
+        "http://localhost:58915"   # Browser preview proxy alternative
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

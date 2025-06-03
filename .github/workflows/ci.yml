@@ -109,7 +109,10 @@ jobs:
         node-version: '18'
     
     - name: Create .env file
-      run: cp .env.example .env
+      run: |
+        cp .env.example .env
+        # Override API URL for Docker container communication
+        sed -i 's|VITE_API_URL=http://localhost:8000|VITE_API_URL=http://backend:8000|g' .env
     
     - name: Build and start services
       run: docker compose up --build -d
@@ -149,7 +152,10 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Create .env file
-      run: cp .env.example .env
+      run: |
+        cp .env.example .env
+        # Override API URL for Docker container communication
+        sed -i 's|VITE_API_URL=http://localhost:8000|VITE_API_URL=http://backend:8000|g' .env
     
     - name: Build Docker images
       run: docker compose build
