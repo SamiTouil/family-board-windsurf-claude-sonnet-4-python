@@ -117,10 +117,38 @@ jobs:
     - name: Build and start services
       run: docker compose up --build -d
     
+    - name: Debug container status
+      run: |
+        echo "=== Docker containers status ==="
+        docker compose ps
+        echo "=== Docker containers logs ==="
+        docker compose logs
+    
     - name: Wait for services to be ready
       run: |
-        timeout 120s bash -c 'until curl -f http://localhost:3000; do sleep 2; done'
-        timeout 120s bash -c 'until curl -f http://localhost:8000/health; do sleep 2; done'
+        # Wait for frontend service
+        for i in {1..60}; do
+          if curl -f http://localhost:3000 >/dev/null 2>&1; then
+            echo "Frontend is ready"
+            break
+          fi
+          echo "Waiting for frontend... ($i/60)"
+          sleep 2
+        done
+        
+        # Wait for backend service
+        for i in {1..60}; do
+          if curl -f http://localhost:8000/health >/dev/null 2>&1; then
+            echo "Backend is ready"
+            break
+          fi
+          echo "Waiting for backend... ($i/60)"
+          sleep 2
+        done
+        
+        # Verify both services are responding
+        curl -f http://localhost:3000
+        curl -f http://localhost:8000/health
     
     - name: Install E2E test dependencies
       working-directory: ./e2e-tests
