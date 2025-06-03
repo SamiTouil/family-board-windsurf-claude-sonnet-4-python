@@ -149,18 +149,31 @@ test.describe('Authentication Flow', () => {
       // Switch to signup mode
       await page.getByTestId('switch-mode-button').click()
       
+      // Use unique email to avoid conflicts in CI
+      const uniqueEmail = `signup-${Date.now()}-${Math.random().toString(36).substring(7)}@example.com`
+      
       // Fill out the form
       await page.getByTestId('firstName-input').fill(testUser.firstName)
       await page.getByTestId('lastName-input').fill(testUser.lastName)
-      await page.getByTestId('email-input').fill(`signup-${Date.now()}@example.com`)
+      await page.getByTestId('email-input').fill(uniqueEmail)
       await page.getByTestId('password-input').fill(testUser.password)
       await page.getByTestId('confirmPassword-input').fill(testUser.password)
       
       // Submit the form
       await page.getByTestId('submit-button').click()
       
-      // Wait for signup to complete and redirect to dashboard
-      await expect(page.getByTestId('user-name')).toBeVisible({ timeout: 20000 })
+      // Debug: Log page content if user-name is not found
+      try {
+        await expect(page.getByTestId('user-name')).toBeVisible({ timeout: 20000 })
+      } catch (error) {
+        console.log('=== DEBUG: user-name element not found ===')
+        console.log('Current URL:', page.url())
+        console.log('Page title:', await page.title())
+        console.log('Page content:', await page.content())
+        console.log('=== END DEBUG ===')
+        throw error
+      }
+      
       await expect(page.getByTestId('user-name')).toContainText(`${testUser.firstName} ${testUser.lastName}`)
       await expect(page.getByTestId('logout-button')).toBeVisible()
     })
@@ -176,7 +189,7 @@ test.describe('Authentication Flow', () => {
     })
 
     test('should successfully login with valid credentials after signup', async ({ page }) => {
-      const uniqueEmail = `login-test-${Date.now()}@example.com`
+      const uniqueEmail = `login-test-${Date.now()}-${Math.random().toString(36).substring(7)}@example.com`
       
       // First register a user
       await page.getByTestId('switch-mode-button').click()
@@ -207,7 +220,7 @@ test.describe('Authentication Flow', () => {
 
   test.describe('Dashboard Features', () => {
     test('should display user information and logout functionality', async ({ page }) => {
-      const uniqueEmail = `dashboard-test-${Date.now()}@example.com`
+      const uniqueEmail = `dashboard-test-${Date.now()}-${Math.random().toString(36).substring(7)}@example.com`
       
       // Register and login
       await page.getByTestId('switch-mode-button').click()
@@ -229,7 +242,7 @@ test.describe('Authentication Flow', () => {
     })
 
     test('should maintain language preference after login', async ({ page }) => {
-      const uniqueEmail = `lang-test-${Date.now()}@example.com`
+      const uniqueEmail = `lang-test-${Date.now()}-${Math.random().toString(36).substring(7)}@example.com`
       
       // Change language to French first
       await page.getByTestId('lang-fr-button').click()
@@ -268,7 +281,7 @@ test.describe('Authentication Flow', () => {
     })
 
     test('should handle duplicate email registration', async ({ page }) => {
-      const duplicateEmail = `duplicate-${Date.now()}@example.com`
+      const duplicateEmail = `duplicate-${Date.now()}-${Math.random().toString(36).substring(7)}@example.com`
       
       // First registration
       await page.getByTestId('switch-mode-button').click()
