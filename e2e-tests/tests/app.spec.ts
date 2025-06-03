@@ -41,7 +41,8 @@ test.describe('Family Task Planner App', () => {
   test('should display welcome message', async ({ page }) => {
     await page.goto('/')
     
-    // Check if welcome message is visible
-    await expect(page.getByText('Welcome to your family task planner!')).toBeVisible()
+    // Check if auth page is visible (since we now show auth page when not authenticated)
+    await expect(page.getByText('Welcome back')).toBeVisible()
+    await expect(page.getByTestId('submit-button')).toBeVisible()
   })
 })

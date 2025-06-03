@@ -1,39 +1,21 @@
-import { useTranslation } from 'react-i18next'
+import { useAuth } from './contexts/AuthContext'
+import { AuthPage } from './components/AuthPage'
+import { Dashboard } from './components/Dashboard'
 import './App.css'
 
 function App(): JSX.Element {
-  const { t, i18n } = useTranslation()
+  const { isAuthenticated, loading } = useAuth()
 
-  const changeLanguage = (lng: string): void => {
-    i18n.changeLanguage(lng)
+  if (loading) {
+    return (
+      <div className="app-loading">
+        <div className="loading-spinner"></div>
+        <p>Loading...</p>
+      </div>
+    )
   }
 
-  return (
-    <div className="app">
-      <header className="app-header">
-        <h1 className="app-title">{t('app.title')}</h1>
-        <div className="language-selector">
-          <button 
-            onClick={() => changeLanguage('en')}
-            className={`lang-btn ${i18n.language === 'en' ? 'active' : ''}`}
-          >
-            EN
-          </button>
-          <button 
-            onClick={() => changeLanguage('fr')}
-            className={`lang-btn ${i18n.language === 'fr' ? 'active' : ''}`}
-          >
-            FR
-          </button>
-        </div>
-      </header>
-      <main className="app-main">
-        <div className="content-placeholder">
-          <p>{t('app.welcome')}</p>
-        </div>
-      </main>
-    </div>
-  )
+  return isAuthenticated ? <Dashboard /> : <AuthPage />
 }
 
 export default App
